@@ -48,14 +48,18 @@ p { font-size: x-small; }
   overflow-x: hidden;
 }
 
-/** Chat Window **/
+/** Ventana de Chat **/
 .chat-container {
-  flex: 1 0 70%;
+  flex: 1 0 30%;
   word-wrap: break-word;
   overflow-x: hidden;
   overflow-y: scroll;
   padding: 6px;
-  margin-bottom: 10px;
+  margin-bottom: 75px;
+  border-style: solid;
+  border-color: blue;
+  border-left: 10px;
+
 }
 
 .message > p { font-size: medium; }
@@ -66,16 +70,16 @@ p { font-size: x-small; }
 
 /* Panel de información */
 .info-container {
-  flex: 0 0 30%;
-  border-left: solid 1px var(--black);
+  flex: 0 0 40%;
   padding: 12px;
   overflow-x: hidden;
-  overflow-y: scroll;
-  margin-bottom: 10px;
+  margin-bottom: 75px;
   position: relative;
   justify-content: space-around;
   display: flex;
   flex-direction: column;
+  border-style: solid;
+  border-color: red;
 }
 
 .divider {
@@ -90,9 +94,9 @@ p { font-size: x-small; }
 .notification-list {
   display: flex;
   flex-direction: column;
-  overflow: scroll;
   padding-bottom: 15px;
   flex: 0 0 30%;
+  overflow-y: scroll;
 }
 
 .notification {
@@ -125,8 +129,6 @@ p { font-size: x-small; }
   min-width: 0;
   margin: 24px auto;
 }
-
-.key { overflow: scroll; }
 
 .room-select {
   display: flex;
@@ -189,7 +191,7 @@ p { font-size: x-small; }
   position: fixed;
   bottom: 0;
   left: 0;
-  padding: 10px;
+  padding: 30px;
   height: 40px;
 }
 
