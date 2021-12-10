@@ -1,72 +1,82 @@
 const express = require('express')
 
-// Setup Express server
+//Setea el servidor de Express
 const app = express()
 const http = require('http').Server(app)
 
-// Attach Socket.io to server
+// Adjunta el socket para el server
+
 const io = require('socket.io')(http)
 
-// Serve web app directory
+// Crea el directorio del servidor web
 app.use(express.static('public'))
 
-/** Manage behavior of each client socket connection */
+/** Administar cada conexión de cada cliente cuando se conecta*/
+
 io.on('connection', (socket) => {
   console.log(`User Connected - Socket ID ${socket.id}`)
 
-  // Store the room that the socket is connected to
-  // If you need to scale the app horizontally, you'll need to store this variable in a persistent store such as Redis.
-  // For more info, see here: https://github.com/socketio/socket.io-redis
+  //Almacena la sala a la que se ha conectado el socket del cliente
+
   let currentRoom = null
 
-  /** Process a room join request. */
+  /** Proceso de solicitud para unirse a la sals. */
+
   socket.on('JOIN', (roomName) => {
-    // Get chatroom info
+    // Obtener la información de la sala de chat
     let room = io.sockets.adapter.rooms[roomName]
 
-    // Reject join request if room already has more than 1 connection
+    //Rechaza la conexión cuando hay más de 1 (2 clientes) conexión  
     if (room && room.length > 1) {
-      // Notify user that their join request was rejected
+
+      // Notifica al cliente que su solicitud fue rechazada
+
       io.to(socket.id).emit('ROOM_FULL', null)
 
-      // Notify room that someone tried to join
+      // Notifica a la sala que alguien más intentó entrar
+
       socket.broadcast.to(roomName).emit('INTRUSION_ATTEMPT', null)
     } else {
-      // Leave current room
+      // Deja la sala actual
       socket.leave(currentRoom)
 
-      // Notify room that user has left
+      // Notifica cuando el cliente deja la sala
+
       socket.broadcast.to(currentRoom).emit('USER_DISCONNECTED', null)
-      // Join new room
+
+      // Se une a una nueva sala
+
       currentRoom = roomName
       socket.join(currentRoom)
 
-      // Notify user of room join success
+      // Notifica al usuario que se ha unido a la sala con exito
+
       io.to(socket.id).emit('ROOM_JOINED', currentRoom)
 
-      // Notify room that user has joined
+      // Notifica a la sala que un usuario ha ingresado
+
       socket.broadcast.to(currentRoom).emit('NEW_CONNECTION', null)
     }
   })
 
-  /** Broadcast a received message to the room */
+  /** Transmitir un mensaje recibido a la sala */
   socket.on('MESSAGE', (msg) => {
     console.log(`New Message - ${msg.text}`)
     socket.broadcast.to(currentRoom).emit('MESSAGE', msg)
   })
 
-  /** Broadcast a new publickey to the room */
+  /** Transmitir una notificacion de nueva llave publica a la sala */
   socket.on('PUBLIC_KEY', (key) => {
     socket.broadcast.to(currentRoom).emit('PUBLIC_KEY', key)
   })
 
-  /** Broadcast a disconnection notification to the room */
+  /** Transmite una notificacion de desconexión en la sala */
   socket.on('disconnect', () => {
     socket.broadcast.to(currentRoom).emit('USER_DISCONNECTED', null)
   })
 })
 
-// Start server
+// Inicia el servidor
 const port = process.env.PORT || 3000
 http.listen(port, () => {
   console.log(`Chat server listening on port ${port}.`)
